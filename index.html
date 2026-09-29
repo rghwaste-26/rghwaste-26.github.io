@@ -1,2 +1,120 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><meta name="apple-mobile-web-app-capable" content="yes" /><meta name="apple-mobile-web-app-title" content="RGH Leads" /><title>RGH Waste Lead Capture</title></head><body><p>Open this page after GitHub Pages finishes publishing.</p><p>If you still see this, refresh in a minute.</p><script>location.replace('https://rghwaste-26.github.io/');</script></body></html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="RGH Leads" />
+<meta name="theme-color" content="#a4cd43" />
+<title>RGH Waste & Disposal Lead Capture</title>
+<style>
+:root{--g:#a4cd43;--c:#414042;--m:#6b6b6e;--l:#d9d9dc;--p:#f3f4f2}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;font-family:-apple-system,system-ui,sans-serif;background:linear-gradient(#fff 0 84px,var(--p) 84px);color:var(--c);padding:16px}
+.wrap{max-width:920px;margin:0 auto}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:8px 0 16px}
+header img{height:36px}
+header p{margin:2px 0 0;color:var(--m);font-size:13px}
+.stats{background:var(--c);color:#fff;border-radius:12px;padding:8px 14px;text-align:right}
+.stats b{display:block;font-size:22px;color:var(--g)}
+.card{background:#fff;border-radius:20px;box-shadow:0 10px 24px rgba(65,64,66,.1);padding:20px;margin-bottom:16px}
+h2{margin:0 0 6px;font-size:20px}
+.sub{color:var(--m);margin:0 0 14px;font-size:14px}
+form{display:grid;gap:12px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+label{display:block;font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;margin-bottom:6px}
+input,select,textarea{width:100%;font-size:17px;padding:13px;border:1.5px solid var(--l);border-radius:12px}
+.chips{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.chip,.heat button,.ghost{border:1.5px solid var(--l);background:#fff;border-radius:12px;padding:12px;font-size:15px;font-weight:650}
+.chip.on{background:var(--g);border-color:#8bb52e;color:#fff}
+.heat{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.heat button.on.hot{background:#b42318;color:#fff;border-color:#b42318}
+.heat button.on.warm{background:var(--g);color:#fff;border-color:var(--g)}
+.heat button.on.cool{background:var(--c);color:#fff}
+.actions{display:grid;grid-template-columns:1fr 2fr;gap:10px}
+.btn{border:0;border-radius:14px;padding:16px;font-size:17px;font-weight:700}
+.clear{background:#eef2f6}
+.save{background:var(--g);color:#fff}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap}
+.lead{border:1px solid var(--l);border-radius:12px;padding:10px;margin:8px 0}
+.meta{color:var(--m);font-size:13px}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#5a8f1e;color:#fff;padding:12px 18px;border-radius:999px;opacity:0;pointer-events:none}
+.toast.show{opacity:1}
+dialog{border:0;border-radius:18px;width:min(440px,92vw);padding:20px}
+@media(max-width:680px){.row,.heat,.actions{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<div>
+<img alt="RGH Waste & Disposal" src="https://dumpsterrentalnear.com/wp-content/themes/rgh/assets/images/logo.svg" />
+<p>Event Expo Lead Capture</p>
+<p><a href="tel:4074125800" style="color:#8bb52e;font-weight:700;text-decoration:none">407-412-5800</a></p>
+</div>
+<div class="stats"><b id="leadCount">0</b><span>leads saved</span></div>
+</header>
+<section class="card">
+<h2>New lead</h2>
+<p class="sub" id="sendStatus">Saves on this iPad. Emails are stored in the outbox.</p>
+<form id="leadForm">
+<div class="row"><div><label>First name *</label><input id="firstName" required></div><div><label>Last name *</label><input id="lastName" required></div></div>
+<div class="row"><div><label>Email *</label><input id="email" type="email" required></div><div><label>Phone</label><input id="phone" type="tel"></div></div>
+<div class="row"><div><label>Company *</label><input id="company" required></div><div><label>Job title</label><input id="title"></div></div>
+<div><label>Product / service *</label><div class="chips" id="interestChips"></div></div>
+<div><label>Lead temperature</label>
+<div class="heat">
+<button type="button" data-heat="Hot" class="hot">Hot</button>
+<button type="button" data-heat="Warm" class="warm on">Warm</button>
+<button type="button" data-heat="Cool" class="cool">Cool</button>
+</div>
+<input type="hidden" id="heat" value="Warm">
+</div>
+<div class="row">
+<div><label>Follow up</label><select id="followUp"><option>Call with quote</option><option>Email</option><option>Same-day delivery</option><option>Site visit</option><option>No follow-up</option></select></div>
+<div><label>Assign to sales rep *</label><select id="rep" required></select></div>
+</div>
+<div><label>Captured by</label><select id="staff"></select></div>
+<div><label>Notes</label><textarea id="notes"></textarea></div>
+<div class="actions"><button type="button" class="btn clear" id="resetBtn">Clear</button><button type="submit" class="btn save">Save lead</button></div>
+</form>
+</section>
+<section class="card">
+<h2>Booth toolkit</h2>
+<div class="toolbar">
+<button class="ghost" id="viewBtn">View leads</button>
+<button class="ghost" id="emailBoxBtn">Email outbox</button>
+<button class="ghost" id="exportBtn">Export CSV</button>
+</div>
+<div id="previewList" class="meta">No leads yet.</div>
+</section>
+</div>
+<div class="toast" id="toast"></div>
+<dialog id="boxDlg"><div id="boxFull"></div><button class="btn save" id="closeBox" style="margin-top:12px;width:100%">Done</button></dialog>
+<script>
+const PRODUCTS=["20-yard roll-off","30-yard roll-off","Grapple / tight-access dumpster","Compactor","Portable toilets","Bulk / grapple truck","Recycling","Event / community service"];
+const REPS=[{name:"Keith",email:"keith@rghwaste.com"},{name:"Ray",email:"raym@rghwaste.com"}];
+const STAFF=["Keith","Ray","Booth"];
+const $=id=>document.getElementById(id);
+const store={get:(k,f)=>{try{return JSON.parse(localStorage.getItem(k))??f;}catch{return f;}},set:(k,v)=>localStorage.setItem(k,JSON.stringify(v))};
+const leads=()=>store.get("expoLeads",[]);
+const emails=()=>store.get("expoEmails",[]);
+const esc=s=>String(s||"").replace(/[&<>"']/g,c=>({"&":"&","<":"<",">":">","\"":""","'":"&#39;"}[c]));
+function toast(m){const t=$("toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),1800);}
+function status(){const e=emails();$("sendStatus").textContent=e.length?e.length+" emails stored on this iPad": "Save a lead and the email is stored on this iPad.";}
+function render(){const all=leads().slice().reverse();$("leadCount").textContent=all.length;$("previewList").innerHTML=all.length?all.slice(0,5).map(l=>`<div class=\"lead\"><b>${esc(l.firstName)} ${esc(l.lastName)}</b><div class=\"meta\">${esc(l.company)} \u00b7 ${esc(l.repName)}</div></div>`).join(""):"<div class=\"meta\">No leads yet.</div>";}
+PRODUCTS.forEach(p=>{const b=document.createElement("button");b.type="button";b.className="chip";b.dataset.value=p;b.textContent=p;b.onclick=()=>b.classList.toggle("on");$("interestChips").appendChild(b);});
+REPS.forEach(r=>{const o=document.createElement("option");o.value=r.email;o.dataset.name=r.name;o.textContent=r.name+" \u2014 "+r.email;$("rep").appendChild(o);});
+STAFF.forEach(n=>{const o=document.createElement("option");o.textContent=n;$("staff").appendChild(o);});
+document.querySelectorAll(".heat button").forEach(btn=>{btn.onclick=()=>{document.querySelectorAll(".heat button").forEach(b=>b.classList.remove("on"));btn.classList.add("on");$("heat").value=btn.dataset.heat;};});
+function body(l){return ["Assigned to: "+l.repName+" <"+l.repEmail+">","Name: "+l.firstName+" "+l.lastName,"Email: "+l.email,"Phone: "+(l.phone||""),"Company: "+l.company,"Products: "+(l.interests||[]).join(", "),"Temperature: "+l.heat,"Follow up: "+l.followUp,"Captured by: "+l.staff,"Captured at: "+l.capturedAt,"",l.notes||""].join("\n");}
+$("leadForm").onsubmit=e=>{e.preventDefault();const interests=[...document.querySelectorAll(".chip.on")].map(x=>x.dataset.value);if(!interests.length)return toast("Select at least one product");const rep=$("rep").selectedOptions[0];const lead={id:Date.now().toString(36),firstName:$("firstName").value.trim(),lastName:$("lastName").value.trim(),email:$("email").value.trim(),phone:$("phone").value.trim(),company:$("company").value.trim(),title:$("title").value.trim(),interests,heat:$("heat").value,followUp:$("followUp").value,staff:$("staff").value,repName:rep.dataset.name,repEmail:$("rep").value,notes:$("notes").value.trim(),capturedAt:new Date().toISOString()};store.set("expoLeads",leads().concat(lead));store.set("expoEmails",emails().concat({id:"m-"+lead.id,to:lead.repEmail,cc:"robert@rghwaste.com",subject:"RGH Expo lead for "+lead.repName+": "+lead.firstName+" "+lead.lastName+" - "+lead.company,body:body(lead),repName:lead.repName,status:"stored",createdAt:lead.capturedAt}));$("leadForm").reset();$("heat").value="Warm";document.querySelectorAll(".chip").forEach(c=>c.classList.remove("on"));document.querySelectorAll(".heat button").forEach(b=>b.classList.toggle("on",b.dataset.heat==="Warm"));render();status();toast("Saved locally in Email outbox");};
+$("resetBtn").onclick=()=>{$("leadForm").reset();$("heat").value="Warm";document.querySelectorAll(".chip").forEach(c=>c.classList.remove("on"));document.querySelectorAll(".heat button").forEach(b=>b.classList.toggle("on",b.dataset.heat==="Warm"));};
+function openMail(m){location.href="mailto:"+encodeURIComponent(m.to)+"?cc="+encodeURIComponent(m.cc||"")+"&subject="+encodeURIComponent(m.subject)+"&body="+encodeURIComponent(m.body);}
+$("viewBtn").onclick=()=>{$("boxFull").innerHTML="<h2>Saved leads</h2>"+(leads().slice().reverse().map(l=>"<div class=lead><b>"+esc(l.firstName)+" "+esc(l.lastName)+"</b><div class=meta>"+esc(l.company)+" - "+esc(l.email)+" - "+esc(l.repName)+"</div></div>").join("")||"<p>No leads yet.</p>");$("boxDlg").showModal();};
+$("emailBoxBtn").onclick=()=>{$("boxFull").innerHTML="<h2>Email outbox</h2>"+(emails().slice().reverse().map(m=>"<div class=lead><b>"+esc(m.subject)+"</b><div class=meta>To "+esc(m.to)+" CC "+esc(m.cc)+"</div><button class=ghost data-id='"+esc(m.id)+"'>Open in Mail</button></div>").join("")||"<p>No emails yet.</p>");$("boxFull").querySelectorAll("button[data-id]").forEach(b=>b.onclick=()=>{const m=emails().find(x=>x.id===b.dataset.id);if(m)openMail(m);});$("boxDlg").showModal();};
+$("closeBox").onclick=()=>$("boxDlg").close();
+$("exportBtn").onclick=()=>{const all=leads();if(!all.length)return toast("No leads to export");const headers=["capturedAt","firstName","lastName","email","phone","company","title","interests","heat","followUp","staff","repName","repEmail","notes"];const csv=[headers.join(",")].concat(all.map(l=>headers.map(h=>"\""+String(h==="interests"?(l.interests||[]).join("; "):(l[h]??"")).replace(/\"/g,'\"\"')+"\"").join(","))).join("\n");const file=new File([csv],"expo-leads.csv",{type:"text/csv"});if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]}))navigator.share({files:[file],title:"RGH expo leads"});else{const a=document.createElement("a");a.href=URL.createObjectURL(file);a.download="expo-leads.csv";a.click();}};
+render();status();
+</script>
+</body></html>
