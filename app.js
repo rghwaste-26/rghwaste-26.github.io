@@ -20,6 +20,22 @@ function render(){
     return "<div class=\"lead\"><b>" + esc(l.firstName) + " " + esc(l.lastName) + "</b><div class=\"meta\">" + esc(l.company) + " · " + esc(l.repName) + "</div></div>";
   }).join("");
 }
+function bindGroup(boxId, kind){
+  var box = $(boxId);
+  if (!box) return;
+  box.querySelectorAll(".pick").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      box.querySelectorAll(".pick").forEach(function(b){ b.classList.remove("on"); });
+      btn.classList.add("on");
+      if (kind === "followUp") $("followUp").value = btn.getAttribute("data-value");
+      if (kind === "staff") $("staff").value = btn.getAttribute("data-value");
+      if (kind === "rep") {
+        $("repEmail").value = btn.getAttribute("data-value");
+        $("repName").value = btn.getAttribute("data-name");
+      }
+    });
+  });
+}
 PRODUCTS.forEach(function(p){
   var b = document.createElement("button");
   b.type = "button"; b.className = "chip"; b.setAttribute("data-value", p); b.textContent = p;
@@ -33,6 +49,9 @@ document.querySelectorAll(".heat button").forEach(function(btn){
     $("heat").value = btn.getAttribute("data-heat");
   });
 });
+bindGroup("followPicks", "followUp");
+bindGroup("repPicks", "rep");
+bindGroup("staffPicks", "staff");
 function mailBody(l){
   return [
     "Assigned to: " + l.repName + " <" + l.repEmail + ">",
@@ -55,8 +74,6 @@ $("leadForm").addEventListener("submit", function(e){
   var interests = [];
   document.querySelectorAll(".chip.on").forEach(function(x){ interests.push(x.getAttribute("data-value")); });
   if (!interests.length) { toast("Select at least one product"); return; }
-  var rep = $("rep");
-  var opt = rep.options[rep.selectedIndex];
   var lead = {
     id: Date.now().toString(36),
     firstName: $("firstName").value.trim(),
@@ -69,8 +86,8 @@ $("leadForm").addEventListener("submit", function(e){
     heat: $("heat").value,
     followUp: $("followUp").value,
     staff: $("staff").value,
-    repName: opt.textContent.trim(),
-    repEmail: rep.value,
+    repName: $("repName").value,
+    repEmail: $("repEmail").value,
     notes: $("notes").value.trim(),
     capturedAt: new Date().toISOString()
   };
@@ -87,15 +104,29 @@ $("leadForm").addEventListener("submit", function(e){
   }));
   $("leadForm").reset();
   $("heat").value = "Warm";
+  $("followUp").value = "Call with quote";
+  $("staff").value = "Keith";
+  $("repEmail").value = "keith@rghwaste.com";
+  $("repName").value = "Keith";
   document.querySelectorAll(".chip").forEach(function(c){ c.classList.remove("on"); });
   document.querySelectorAll(".heat button").forEach(function(b){ b.classList.toggle("on", b.getAttribute("data-heat") === "Warm"); });
+  document.querySelectorAll("#followPicks .pick").forEach(function(b){ b.classList.toggle("on", b.getAttribute("data-value") === "Call with quote"); });
+  document.querySelectorAll("#repPicks .pick").forEach(function(b){ b.classList.toggle("on", b.getAttribute("data-name") === "Keith"); });
+  document.querySelectorAll("#staffPicks .pick").forEach(function(b){ b.classList.toggle("on", b.getAttribute("data-value") === "Keith"); });
   render(); status(); toast("Saved locally in Email outbox");
 });
 $("resetBtn").addEventListener("click", function(){
   $("leadForm").reset();
   $("heat").value = "Warm";
+  $("followUp").value = "Call with quote";
+  $("staff").value = "Keith";
+  $("repEmail").value = "keith@rghwaste.com";
+  $("repName").value = "Keith";
   document.querySelectorAll(".chip").forEach(function(c){ c.classList.remove("on"); });
   document.querySelectorAll(".heat button").forEach(function(b){ b.classList.toggle("on", b.getAttribute("data-heat") === "Warm"); });
+  document.querySelectorAll("#followPicks .pick").forEach(function(b){ b.classList.toggle("on", b.getAttribute("data-value") === "Call with quote"); });
+  document.querySelectorAll("#repPicks .pick").forEach(function(b){ b.classList.toggle("on", b.getAttribute("data-name") === "Keith"); });
+  document.querySelectorAll("#staffPicks .pick").forEach(function(b){ b.classList.toggle("on", b.getAttribute("data-value") === "Keith"); });
 });
 function openMail(m){
   location.href = "mailto:" + encodeURIComponent(m.to) + "?cc=" + encodeURIComponent(m.cc || "") + "&subject=" + encodeURIComponent(m.subject) + "&body=" + encodeURIComponent(m.body);
