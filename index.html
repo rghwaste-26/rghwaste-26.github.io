@@ -1,134 +1,77 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-title" content="RGH Leads" />
-  <title>RGH Waste Lead Capture</title>
-  <style>
-    :root { --g:#a4cd43; --c:#414042; --m:#6b6b6e; --l:#d9d9dc; --p:#f3f4f2; }
-    * { box-sizing: border-box; }
-    body { margin:0; font-family:-apple-system,system-ui,sans-serif; background:linear-gradient(#fff 0 84px,var(--p) 84px); color:var(--c); padding:16px; }
-    .wrap { max-width:920px; margin:0 auto; }
-    header { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:8px 0 16px; }
-    header img { height:36px; }
-    header p { margin:2px 0 0; color:var(--m); font-size:13px; }
-    .stats { background:var(--c); color:#fff; border-radius:12px; padding:8px 14px; text-align:right; }
-    .stats b { display:block; font-size:22px; color:var(--g); }
-    .card { background:#fff; border-radius:20px; padding:20px; margin-bottom:16px; box-shadow:0 10px 24px rgba(65,64,66,.1); }
-    h2 { margin:0 0 6px; font-size:20px; }
-    .sub { color:var(--m); margin:0 0 14px; font-size:14px; }
-    form { display:grid; gap:12px; }
-    .row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-    label { display:block; font-size:12px; font-weight:700; text-transform:uppercase; margin-bottom:6px; }
-    input, select, textarea { width:100%; font-size:17px; padding:14px; border:1.5px solid var(--l); border-radius:12px; background:#fff; min-height:52px; }
-    select { -webkit-appearance:menulist; appearance:menulist; }
-    .chips { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
-    .chip, .heat button, .ghost { border:1.5px solid var(--l); background:#fff; border-radius:12px; padding:14px 12px; font-size:15px; font-weight:650; }
-    .chip.on { background:var(--g); border-color:#8bb52e; color:#fff; }
-    .heat { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; }
-    .heat button.on.hot { background:#b42318; color:#fff; border-color:#b42318; }
-    .heat button.on.warm { background:var(--g); color:#fff; border-color:var(--g); }
-    .heat button.on.cool { background:var(--c); color:#fff; }
-    .actions { display:grid; grid-template-columns:1fr 2fr; gap:10px; }
-    .btn { border:0; border-radius:14px; padding:16px; font-size:17px; font-weight:700; }
-    .clear { background:#eef2f6; }
-    .save { background:var(--g); color:#fff; }
-    .toolbar { display:flex; gap:8px; flex-wrap:wrap; }
-    .lead { border:1px solid var(--l); border-radius:12px; padding:10px; margin:8px 0; }
-    .meta { color:var(--m); font-size:13px; }
-    .toast { position:fixed; left:50%; bottom:24px; transform:translateX(-50%); background:#5a8f1e; color:#fff; padding:12px 18px; border-radius:999px; opacity:0; }
-    .toast.show { opacity:1; }
-    dialog { border:0; border-radius:18px; width:min(440px,92vw); padding:20px; }
-    @media (max-width:680px) { .row, .heat, .actions { grid-template-columns:1fr; } }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="RGH Leads" />
+<title>RGH Waste Lead Capture</title>
+<style>
+:root { --g:#a4cd43; --c:#414042; --m:#6b6b6e; --l:#d9d9dc; --p:#f3f4f2; }
+* { box-sizing: border-box; }
+body { margin:0; font-family:-apple-system,system-ui,sans-serif; background:linear-gradient(#fff 0 84px,var(--p) 84px); color:var(--c); padding:16px; }
+.wrap { max-width:920px; margin:0 auto; }
+header { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:8px 0 16px; }
+header img { height:36px; }
+header p { margin:2px 0 0; color:var(--m); font-size:13px; }
+.stats { background:var(--c); color:#fff; border-radius:12px; padding:8px 14px; text-align:right; }
+.stats b { display:block; font-size:22px; color:var(--g); }
+.card { background:#fff; border-radius:20px; padding:20px; margin-bottom:16px; box-shadow:0 10px 24px rgba(65,64,66,.1); }
+h2 { margin:0 0 6px; font-size:20px; }
+.sub { color:var(--m); margin:0 0 14px; font-size:14px; }
+form { display:grid; gap:12px; }
+.row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+label { display:block; font-size:12px; font-weight:700; text-transform:uppercase; margin-bottom:6px; }
+input, textarea { width:100%; font-size:17px; padding:14px; border:1.5px solid var(--l); border-radius:12px; background:#fff; min-height:52px; }
+.chips, .picks { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.chip, .pick, .heat button, .ghost { border:1.5px solid var(--l); background:#fff; border-radius:12px; padding:14px 12px; font-size:15px; font-weight:650; color:var(--c); }
+.chip.on, .pick.on { background:var(--g); border-color:#8bb52e; color:#fff; }
+.heat { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; }
+.heat button.on.hot { background:#b42318; color:#fff; border-color:#b42318; }
+.heat button.on.warm { background:var(--g); color:#fff; border-color:var(--g); }
+.heat button.on.cool { background:var(--c); color:#fff; }
+.actions { display:grid; grid-template-columns:1fr 2fr; gap:10px; }
+.btn { border:0; border-radius:14px; padding:16px; font-size:17px; font-weight:700; }
+.clear { background:#eef2f6; }
+.save { background:var(--g); color:#fff; }
+.toolbar { display:flex; gap:8px; flex-wrap:wrap; }
+.lead { border:1px solid var(--l); border-radius:12px; padding:10px; margin:8px 0; }
+.meta { color:var(--m); font-size:13px; }
+.toast { position:fixed; left:50%; bottom:24px; transform:translateX(-50%); background:#5a8f1e; color:#fff; padding:12px 18px; border-radius:999px; opacity:0; }
+.toast.show { opacity:1; }
+dialog { border:0; border-radius:18px; width:min(440px,92vw); padding:20px; }
+@media (max-width:680px) { .row, .heat, .actions { grid-template-columns:1fr; } }
+</style>
 </head>
 <body>
 <div class="wrap">
-  <header>
-    <div>
-      <img alt="RGH Waste & Disposal" src="https://dumpsterrentalnear.com/wp-content/themes/rgh/assets/images/logo.svg" />
-      <p>Event Expo Lead Capture</p>
-      <p><a href="tel:4074125800" style="color:#8bb52e;font-weight:700;text-decoration:none">407-412-5800</a></p>
-    </div>
-    <div class="stats"><b id="leadCount">0</b><span>leads saved</span></div>
-  </header>
-  <section class="card">
-    <h2>New lead</h2>
-    <p class="sub" id="sendStatus">Saves on this iPad. Emails are stored in the outbox.</p>
-    <form id="leadForm">
-      <div class="row">
-        <div><label for="firstName">First name *</label><input id="firstName" required></div>
-        <div><label for="lastName">Last name *</label><input id="lastName" required></div>
-      </div>
-      <div class="row">
-        <div><label for="email">Email *</label><input id="email" type="email" required></div>
-        <div><label for="phone">Phone</label><input id="phone" type="tel"></div>
-      </div>
-      <div class="row">
-        <div><label for="company">Company *</label><input id="company" required></div>
-        <div><label for="title">Job title</label><input id="title"></div>
-      </div>
-      <div>
-        <label>Product / service *</label>
-        <div class="chips" id="interestChips"></div>
-      </div>
-      <div>
-        <label>Lead temperature</label>
-        <div class="heat">
-          <button type="button" data-heat="Hot" class="hot">Hot</button>
-          <button type="button" data-heat="Warm" class="warm on">Warm</button>
-          <button type="button" data-heat="Cool" class="cool">Cool</button>
-        </div>
-        <input type="hidden" id="heat" value="Warm">
-      </div>
-      <div class="row">
-        <div>
-          <label for="followUp">Follow up</label>
-          <select id="followUp">
-            <option>Call with quote</option>
-            <option>Email</option>
-            <option>Same-day delivery</option>
-            <option>Site visit</option>
-            <option>No follow-up</option>
-          </select>
-        </div>
-        <div>
-          <label for="rep">Assign to sales rep *</label>
-          <select id="rep" required>
-            <option value="keith@rghwaste.com">Keith</option>
-            <option value="raym@rghwaste.com">Ray</option>
-          </select>
-        </div>
-      </div>
-      <div>
-        <label for="staff">Captured by</label>
-        <select id="staff">
-          <option>Keith</option>
-          <option>Ray</option>
-          <option>Booth</option>
-        </select>
-      </div>
-      <div><label for="notes">Notes</label><textarea id="notes"></textarea></div>
-      <div class="actions">
-        <button type="button" class="btn clear" id="resetBtn">Clear</button>
-        <button type="submit" class="btn save">Save lead</button>
-      </div>
-    </form>
-  </section>
-  <section class="card">
-    <h2>Booth toolkit</h2>
-    <div class="toolbar">
-      <button type="button" class="ghost" id="viewBtn">View leads</button>
-      <button type="button" class="ghost" id="emailBoxBtn">Email outbox</button>
-      <button type="button" class="ghost" id="exportBtn">Export CSV</button>
-    </div>
-    <div id="previewList" class="meta">No leads yet.</div>
-  </section>
+<header>
+<div>
+<img alt="RGH Waste & Disposal" src="https://dumpsterrentalnear.com/wp-content/themes/rgh/assets/images/logo.svg" />
+<p>Event Expo Lead Capture</p>
+<p><a href="tel:4074125800" style="color:#8bb52e;font-weight:700;text-decoration:none">407-412-5800</a></p>
+</div>
+<div class="stats"><b id="leadCount">0</b><span>leads saved</span></div>
+</header>
+<section class="card">
+<h2>New lead</h2>
+<p class="sub" id="sendStatus">Saves on this iPad. Emails are stored in the outbox.</p>
+<form id="leadForm">
+<div class="row"><div><label for="firstName">First name *</label><input id="firstName" required></div><div><label for="lastName">Last name *</label><input id="lastName" required></div></div>
+<div class="row"><div><label for="email">Email *</label><input id="email" type="email" required></div><div><label for="phone">Phone</label><input id="phone" type="tel"></div></div>
+<div class="row"><div><label for="company">Company *</label><input id="company" required></div><div><label for="title">Job title</label><input id="title"></div></div>
+<div><label>Product / service *</label><div class="chips" id="interestChips"></div></div>
+<div><label>Lead temperature</label><div class="heat"><button type="button" data-heat="Hot" class="hot">Hot</button><button type="button" data-heat="Warm" class="warm on">Warm</button><button type="button" data-heat="Cool" class="cool">Cool</button></div><input type="hidden" id="heat" value="Warm"></div>
+<div><label>Follow up *</label><div class="picks" id="followPicks"><button type="button" class="pick on" data-value="Call with quote">Call with quote</button><button type="button" class="pick" data-value="Email">Email</button><button type="button" class="pick" data-value="Same-day delivery">Same-day delivery</button><button type="button" class="pick" data-value="Site visit">Site visit</button><button type="button" class="pick" data-value="No follow-up">No follow-up</button></div><input type="hidden" id="followUp" value="Call with quote"></div>
+<div><label>Assign to sales rep *</label><div class="picks" id="repPicks"><button type="button" class="pick on" data-name="Keith" data-value="keith@rghwaste.com">Keith</button><button type="button" class="pick" data-name="Ray" data-value="raym@rghwaste.com">Ray</button></div><input type="hidden" id="repEmail" value="keith@rghwaste.com"><input type="hidden" id="repName" value="Keith"></div>
+<div><label>Captured by</label><div class="picks" id="staffPicks"><button type="button" class="pick on" data-value="Keith">Keith</button><button type="button" class="pick" data-value="Ray">Ray</button><button type="button" class="pick" data-value="Booth">Booth</button></div><input type="hidden" id="staff" value="Keith"></div>
+<div><label for="notes">Notes</label><textarea id="notes"></textarea></div>
+<div class="actions"><button type="button" class="btn clear" id="resetBtn">Clear</button><button type="submit" class="btn save">Save lead</button></div>
+</form>
+</section>
+<section class="card"><h2>Booth toolkit</h2><div class="toolbar"><button type="button" class="ghost" id="viewBtn">View leads</button><button type="button" class="ghost" id="emailBoxBtn">Email outbox</button><button type="button" class="ghost" id="exportBtn">Export CSV</button></div><div id="previewList" class="meta">No leads yet.</div></section>
 </div>
 <div class="toast" id="toast"></div>
 <dialog id="boxDlg"><div id="boxFull"></div><button type="button" class="btn save" id="closeBox" style="margin-top:12px;width:100%">Done</button></dialog>
 <script src="app.js"></script>
-</body>
-</html>
+</body></html>
