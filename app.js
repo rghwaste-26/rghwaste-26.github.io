@@ -7,7 +7,7 @@ const store = {
 function leads(){ return store.get("expoLeads", []); }
 function emails(){ return store.get("expoEmails", []); }
 function esc(s){ return String(s || "").replace(/&/g,"&").replace(/</g,"<").replace(/>/g,">"); }
-function toast(m){ var t = $("toast"); t.textContent = m; t.className = "toast show"; setTimeout(function(){ t.className = "toast"; }, 2200); }
+function toast(m){ var t = $("toast"); t.textContent = m; t.className = "toast show"; setTimeout(function(){ t.className = "toast"; }, 2400); }
 function status(){
   var e = emails();
   $("sendStatus").textContent = e.length ? (e.length + " emails stored on this iPad") : "Save a lead and the email is stored on this iPad.";
@@ -52,14 +52,17 @@ document.querySelectorAll(".heat button").forEach(function(btn){
 bindGroup("followPicks", "followUp");
 bindGroup("repPicks", "rep");
 bindGroup("staffPicks", "staff");
+function cleanCardText(text) {
+  return String(text || "").replace(/\r/g, "\n").replace(/\s*@\s*/g, "@").replace(/\s+\./g, ".");
+}
 function parseCard(text) {
-  var raw = String(text || "").replace(/\r/g, "\n");
+  var raw = cleanCardText(text);
   var emailMatch = raw.match(/[A-Z0-9._%+\-]+@[A-Z0-9.\-]+\.[A-Z]{2,}/i);
   var email = emailMatch ? emailMatch[0] : "";
   var phoneMatch = raw.match(/(?:\+?1[\s.\-]?)?(?:\(?\d{3}\)?[\s.\-]?)?\d{3}[\s.\-]?\d{4}/);
   var phone = phoneMatch ? phoneMatch[0] : "";
   var lines = raw.split(/\n/).map(function(s){ return s.replace(/\s+/g," ").trim(); }).filter(Boolean);
-  var junk = /^(email|phone|tel|fax|mobile|cell|www|http|https|qr)/i;
+  var junk = /^(email|e-mail|phone|tel|fax|mobile|cell|www|http|https|qr)/i;
   var titleRe = /\b(ceo|cfo|coo|president|owner|founder|director|manager|vp|vice president|sales|estimator|superintendent|project manager|partner)\b/i;
   var coRe = /\b(llc|l\.l\.c|inc|corp|ltd|company|co\.|construction|builders|waste|services|group|homes|properties|management)\b/i;
   var nameRe = /^[A-Za-z][A-Za-z.'\-]+(?:\s+[A-Za-z][A-Za-z.'\-]+){0,3}$/;
@@ -81,19 +84,11 @@ function parseCard(text) {
   if (name) { var parts = name.split(/\s+/); first = parts[0]; last = parts.slice(1).join(" "); }
   return { firstName: first, lastName: last, email: email, phone: phone, company: company, title: title, raw: raw };
 }
-function shrinkImage(file, done) {
-  var img = new Image();
-  var url = URL.createObjectURL(file);
-  img.onload = function() {
-    var max = 1400; var w = img.width; var h = img.height;
-    if (w > max || h > max) { var s = Math.min(max / w, max / h); w = Math.round(w * s); h = Math.round(h * s); }
-    var c = document.createElement("canvas"); c.width = w; c.height = h;
-    c.getContext("2d").drawImage(img, 0, 0, w, h);
-    URL.revokeObjectURL(url);
-    c.toBlob(function(blob){ done(blob || file); }, "image/jpeg", 0.85);
-  };
-  img.onerror = function(){ URL.revokeObjectURL(url); done(file); };
-  img.src = url;
+function fileToDataUrl(file, done) {
+  var reader = new FileReader();
+  reader.onload = function(){ done(reader.result); };
+  reader.onerror = function(){ done(""); };
+  reader.readAsDataURL(file);
 }
 function applyCard(parsed) {
   if (parsed.firstName) $("firstName").value = parsed.firstName;
@@ -102,43 +97,62 @@ function applyCard(parsed) {
   if (parsed.phone) $("phone").value = parsed.phone;
   if (parsed.company) $("company").value = parsed.company;
   if (parsed.title) $("title").value = parsed.title;
-  if (!$("notes").value && parsed.raw) $("notes").value = "Card scan:\n" + parsed.raw;
+  if (parsed.raw) $("notes").value = (($("notes").value ? $("notes").value + "\n" : "") + "Card scan:\n" + parsed.raw);
   var filled = [];
   if (parsed.firstName) filled.push("name");
   if (parsed.email) filled.push("email");
   if (parsed.phone) filled.push("phone");
   if (parsed.company) filled.push("company");
-  toast(filled.length ? ("Filled " + filled.join(", ") + ". Check and save.") : "Could not read the card. Type it in.");
+  $("sendStatus").textContent = filled.length ? ("Filled " + filled.join(", ") + ". Check spelling, then save.") : "Could not parse the card. Raw text is in Notes.";
+  toast(filled.length ? ("Filled " + filled.join(", ")) : "Check Notes for the card text");
 }
-if ($("scanBtn")) {
-  $("scanBtn").addEventListener("click", function(){ $("cardCam").click(); });
-  $("cardCam").addEventListener("change", function(){
-    var file = this.files && this.files[0];
-    this.value = "";
-    if (!file) return;
-    if (typeof Tesseract === "undefined") { toast("Card reader did not load. Check Wi-Fi and refresh."); return; }
-    var thumb = $("cardThumb");
-    thumb.src = URL.createObjectURL(file);
-    thumb.style.display = "block";
-    $("scanBtn").disabled = true;
-    toast("Reading card... hold still, 5-15 seconds");
-    shrinkImage(file, function(imgBlob){
-      Tesseract.recognize(imgBlob, "eng", {
-        logger: function(m){
-          if (m.status === "recognizing text" && m.progress) {
-            $("sendStatus").textContent = "Reading card... " + Math.round(m.progress * 100) + "%";
-          }
-        }
-      }).then(function(result){
-        var text = result && result.data ? result.data.text : "";
-        applyCard(parseCard(text));
-        status();
-      }).catch(function(){
-        toast("Could not read that photo. Try again in better light.");
-      }).finally(function(){
-        $("scanBtn").disabled = false;
-      });
+function readWithOcrSpace(dataUrl) {
+  var body = new FormData();
+  body.append("base64Image", dataUrl);
+  body.append("apikey", "K87899142388957");
+  body.append("language", "eng");
+  body.append("OCREngine", "2");
+  body.append("scale", "true");
+  body.append("isOverlayRequired", "false");
+  return fetch("https://api.ocr.space/parse/image", { method: "POST", body: body }).then(function(r){ return r.json(); }).then(function(json){
+    var parsed = json && json.ParsedResults && json.ParsedResults[0];
+    return parsed && parsed.ParsedText ? parsed.ParsedText : "";
+  });
+}
+function readWithTesseract(file) {
+  if (typeof Tesseract === "undefined") return Promise.resolve("");
+  return Tesseract.recognize(file, "eng").then(function(result){
+    return result && result.data ? result.data.text : "";
+  }).catch(function(){ return ""; });
+}
+function handleCardFile(file) {
+  if (!file) return;
+  $("sendStatus").textContent = "Reading card... keep this page open.";
+  toast("Reading card...");
+  var thumb = $("cardThumb");
+  if (thumb) { thumb.src = URL.createObjectURL(file); thumb.style.display = "block"; }
+  fileToDataUrl(file, function(dataUrl){
+    var p = dataUrl ? readWithOcrSpace(dataUrl) : Promise.resolve("");
+    p.catch(function(){ return ""; }).then(function(text){
+      if (text && text.trim()) return text;
+      $("sendStatus").textContent = "Cloud reader missed it. Trying on-device...";
+      return readWithTesseract(file);
+    }).then(function(text){
+      if (!text || !String(text).trim()) {
+        $("sendStatus").textContent = "Could not read text. Type the card in.";
+        toast("Could not read text off that photo");
+        return;
+      }
+      applyCard(parseCard(text));
+    }).catch(function(){
+      $("sendStatus").textContent = "Scan failed. Type the card in.";
+      toast("Scan failed. Type it in.");
     });
+  });
+}
+if ($("cardCam")) {
+  $("cardCam").addEventListener("change", function(){
+    handleCardFile(this.files && this.files[0]);
   });
 }
 function mailBody(l){
