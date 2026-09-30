@@ -40,6 +40,9 @@ input, textarea { width:100%; font-size:17px; padding:14px; border:1.5px solid v
 .toast { position:fixed; left:50%; bottom:24px; transform:translateX(-50%); background:#5a8f1e; color:#fff; padding:12px 18px; border-radius:999px; opacity:0; }
 .toast.show { opacity:1; }
 dialog { border:0; border-radius:18px; width:min(440px,92vw); padding:20px; }
+.scanbar { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin:0 0 12px; }
+#cardCam { display:none; }
+#cardThumb { height:44px; border-radius:8px; display:none; }
 @media (max-width:680px) { .row, .heat, .actions { grid-template-columns:1fr; } }
 </style>
 </head>
@@ -55,7 +58,12 @@ dialog { border:0; border-radius:18px; width:min(440px,92vw); padding:20px; }
 </header>
 <section class="card">
 <h2>New lead</h2>
-<p class="sub" id="sendStatus">Saves on this iPad. Emails are stored in the outbox.</p>
+<div class="scanbar">
+<button type="button" class="ghost" id="scanBtn">Scan business card</button>
+<img id="cardThumb" alt="Card preview" />
+</div>
+<input id="cardCam" type="file" accept="image/*" capture="environment" />
+<p class="sub" id="sendStatus">Saves on this iPad. Scan a card to fill name, email, phone, company.</p>
 <form id="leadForm">
 <div class="row"><div><label for="firstName">First name *</label><input id="firstName" required></div><div><label for="lastName">Last name *</label><input id="lastName" required></div></div>
 <div class="row"><div><label for="email">Email *</label><input id="email" type="email" required></div><div><label for="phone">Phone</label><input id="phone" type="tel"></div></div>
@@ -73,5 +81,6 @@ dialog { border:0; border-radius:18px; width:min(440px,92vw); padding:20px; }
 </div>
 <div class="toast" id="toast"></div>
 <dialog id="boxDlg"><div id="boxFull"></div><button type="button" class="btn save" id="closeBox" style="margin-top:12px;width:100%">Done</button></dialog>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <script src="app.js"></script>
 </body></html>
